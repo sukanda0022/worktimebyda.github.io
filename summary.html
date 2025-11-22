@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>สรุปงานวันนี้</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <h1>สรุปงานวันนี้</h1>
+
+    <button onclick="goBack()" class="btn">◀ กลับหน้าหลัก</button>
+
+    <label for="summaryDate">เลือกวันที่</label>
+    <input type="date" id="summaryDate" class="input" />
+
+    <div id="summaryContainer" class="card"></div>
+  </div>
+
+  <!-- Firebase compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Firebase config (เหมือนใน index.html)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDfUd3RdyccN4_u0R6bNbYtejHFYUNPxkM",
+      authDomain: "shop2-eba1e.firebaseapp.com",
+      projectId: "shop2-eba1e",
+      storageBucket: "shop2-eba1e.appspot.com",
+      messagingSenderId: "1016144050614",
+      appId: "1:1016144050614:web:0f898db4bb56084121a917",
+      measurementId: "G-RHD6SC5NF0"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const allTasks = [
+      "ตึกเฮงๆ",
+      "ข้างเฮงๆ",
+      "ตึกซัก",
+      "บ้าน 21",
+      "บ้าน 49",
+      "บ้าน 259",
+      "เก็บขอบบัว+เช็ดประตู",
+      "ร้านเฮงๆ+พื้นที่ข้างหน้า",
+      "ห้องเก็บของ(ข้างเฮงๆ)+เครื่องซักผ้าข้างหน้า"
+    ];
+
+    const dateInput = document.getElementById("summaryDate");
+    const summaryBox = document.getElementById("summaryContainer");
+
+    dateInput.value = new Date().toISOString().slice(0, 10);
+
+    async function loadData() {
+      const snapshot = await db.collection('workData').get();
+      const data = {};
+      snapshot.forEach(doc => {
+        data[doc.id] = doc.data();
+      });
+      return data;
+    }
+
+    async function renderSummary() {
+      const day = dateInput.value;
+      const data = await loadData();
+      const dayData = data[day] || {};
+
+      const employees = ["ดา", "บีม", "เมย์"];
+
+      let html = `<h2>สรุปงานวันที่ ${day}</h2>`;
+      html += `<table class="summary-table"><thead><tr><th>งาน</th>`;
+
+      employees.forEach(emp => {
+        html += `<th>${emp}</th>`;
+      });
+      html += `<th>สรุป</th></tr></thead><tbody>`;
+
+      allTasks.forEach(task => {
+        html += `<tr><td>${task}</td>`;
+
+        let doneEmployees = [];
+
+        employees.forEach(emp => {
+          const empTasks = dayData[emp] || [];
+          const didTask = empTasks.includes(task);
+          if (didTask) doneEmployees.push(emp);
+
+          html += `<td><span class="${didTask ? 'done' : 'notdone'}">${didTask ? 'ทำแล้ว' : ''}</span></td>`;
+        });
+
+        if (doneEmployees.length === employees.length) {
+          html += `<td class="done">ทำครบแล้ว</td>`;
+        } else if (doneEmployees.length === 0) {
+          html += `<td class="notdone">-</td>`;
+        } else {
+          html += `<td class="partial">: ${doneEmployees.join(", ")}</td>`;
+        }
+
+        html += `</tr>`;
+      });
+
+      html += `</tbody></table>`;
+
+      summaryBox.innerHTML = html;
+    }
+
+    document.addEventListener("DOMContentLoaded", renderSummary);
+    dateInput.addEventListener("change", renderSummary);
+
+    function goBack() {
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+
+</html>

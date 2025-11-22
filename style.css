@@ -1,0 +1,375 @@
+@font-face {
+  font-family: 'Supermarket';
+  src: url('./supermarket.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Supermarket', sans-serif;
+  background: linear-gradient(135deg, #a8edea, #fed6e3);
+  margin: 15px;
+  color: #222;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.5s ease;
+  font-size: 14px;
+}
+
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 20px 30px;
+  /* ลด padding */
+  border-radius: 15px;
+  /* ลดความโค้ง */
+  box-shadow:
+    0 8px 12px rgba(0, 0, 0, 0.1),
+    0 3px 5px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: box-shadow;
+  overflow-x: auto;
+}
+
+.container:hover {
+  box-shadow:
+    0 15px 20px rgba(0, 0, 0, 0.15),
+    0 7px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  border: none;
+  color: white;
+  padding: 10px 18px;
+  /* ลด padding */
+  font-size: 15px;
+  /* ลดฟอนต์ */
+  border-radius: 30px;
+  /* ลดความโค้ง */
+  cursor: pointer;
+  margin-bottom: 20px;
+  /* ลด margin */
+  display: inline-block;
+  transition: background 0.4s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.6);
+  user-select: none;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+  will-change: transform, box-shadow;
+}
+
+.btn:hover {
+  background: linear-gradient(135deg, #2980b9, #1f618d);
+  transform: scale(1.06);
+  box-shadow: 0 6px 20px rgba(41, 128, 185, 0.8);
+}
+
+label {
+  font-weight: 800;
+  display: block;
+  margin-bottom: 6px;
+  margin-top: 20px;
+  color: #2c3e50;
+  font-size: 15px;
+  /* ลดฟอนต์ */
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+input[type="date"] {
+  padding: 10px 14px;
+  /* ลด padding */
+  width: 100%;
+  max-width: 240px;
+  font-size: 15px;
+  /* ลดฟอนต์ */
+  border: 2.5px solid #3498db;
+  border-radius: 12px;
+  /* ลดความโค้ง */
+  transition: border-color 0.4s ease, box-shadow 0.3s ease;
+  box-shadow: inset 0 1px 4px rgba(52, 152, 219, 0.2);
+  will-change: border-color, box-shadow;
+}
+
+input[type="date"]:focus {
+  border-color: #2980b9;
+  outline: none;
+  box-shadow:
+    0 0 10px rgba(41, 128, 185, 0.7),
+    inset 0 1px 5px rgba(41, 128, 185, 0.4);
+}
+
+/* ตาราง */
+table.summary-table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+  /* ลดช่องว่างระหว่างแถว */
+  margin-top: 25px;
+  font-size: 14px;
+  /* ลดฟอนต์ */
+  cursor: default;
+  user-select: none;
+  transition: transform 0.3s ease;
+  will-change: transform;
+  table-layout: fixed;
+}
+
+table.summary-table:hover {
+  transform: scale(1.005);
+  /* ลด scale เล็กน้อย */
+}
+
+table.summary-table th,
+table.summary-table td {
+  padding: 10px 18px;
+  /* ลด padding */
+  text-align: center;
+  vertical-align: middle;
+  background: #fdfdfd;
+  border-radius: 12px;
+  /* ลดความโค้ง */
+  box-shadow:
+    inset 0 0 5px #d7d7d7,
+    0 1px 1px rgba(0, 0, 0, 0.03);
+  transition: background-color 0.4s ease, box-shadow 0.4s ease;
+  position: relative;
+  white-space: normal;
+  word-break: break-word;
+  font-weight: 600;
+  color: #34495e;
+  user-select: none;
+}
+
+table.summary-table th {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  box-shadow:
+    0 5px 8px rgba(41, 128, 185, 0.5);
+  border-bottom: 3px solid #1f618d;
+  user-select: none;
+  cursor: default;
+}
+
+table.summary-table td:first-child {
+  text-align: left;
+  font-weight: 700;
+}
+
+/* เอฟเฟกต์ hover แถว */
+table.summary-table tbody tr:hover td {
+  background-color: #e6f0fb;
+  box-shadow:
+    inset 0 0 6px #a9c8f3,
+    0 3px 5px rgba(52, 152, 219, 0.2);
+  color: #1f3b72;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+}
+
+/* สถานะทำแล้ว */
+.done {
+  color: #27ae60;
+  font-weight: 700;
+  font-size: 16px;
+  /* ลดขนาดฟอนต์ */
+  padding-left: 30px;
+  /* ลด padding */
+  letter-spacing: 0.04em;
+  user-select: none;
+  cursor: default;
+  transition: color 0.3s ease;
+  will-change: color;
+}
+
+.done::before {
+  content: "✅";
+  font-size: 20px;
+  /* ลดขนาดอิโมจิ */
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  filter: drop-shadow(0 0 1px #1c8c3a);
+  transition: transform 0.3s ease, filter 0.3s ease;
+  will-change: transform, filter;
+}
+
+/* สถานะยังไม่ทำ */
+.notdone {
+  color: #e74c3c;
+  font-weight: 700;
+  font-size: 16px;
+  padding-left: 30px;
+  letter-spacing: 0.04em;
+  user-select: none;
+  cursor: default;
+  transition: color 0.3s ease;
+  will-change: color;
+}
+
+.notdone::before {
+  content: "❌";
+  font-size: 20px;
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  filter: drop-shadow(0 0 1px #a82e29);
+  transition: transform 0.3s ease, filter 0.3s ease;
+  will-change: transform, filter;
+}
+
+/* สถานะบางส่วน */
+.partial {
+  color: #f39c12;
+  font-weight: 700;
+  font-size: 14px;
+  /* ลดขนาดฟอนต์ */
+  font-style: italic;
+  background: #fff8e1;
+  padding: 5px 14px 5px 30px;
+  /* ลด padding */
+  border-radius: 18px;
+  box-shadow:
+    0 0 10px #f39c12cc,
+    inset 0 0 6px #f39c12aa;
+  position: relative;
+  letter-spacing: 0.02em;
+  user-select: none;
+  cursor: default;
+  transition: color 0.3s ease, box-shadow 0.3s ease;
+  will-change: color, box-shadow;
+}
+
+.partial::before {
+  font-size: 18px;
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  filter: drop-shadow(0 0 1px #b37800);
+  transition: filter 0.3s ease;
+  will-change: filter;
+}
+
+/* เอฟเฟกต์เมื่อ hover สถานะ */
+.done:hover::before {
+  transform: translateY(-50%) scale(1.1);
+  filter: drop-shadow(0 0 5px #1c8c3a);
+}
+
+.notdone:hover::before {
+  transform: translateY(-50%) scale(1.1);
+  filter: drop-shadow(0 0 5px #a82e29);
+}
+
+.partial:hover::before {
+  transform: translateY(-50%) scale(1.1);
+  filter: drop-shadow(0 0 5px #b37800);
+}
+
+/* input */
+.input {
+  font-size: 14px;
+  /* ลดฟอนต์ */
+  padding: 8px 12px;
+  /* ลด padding */
+  border: 2.5px solid #3498db;
+  border-radius: 12px;
+  width: 240px;
+  transition: border-color 0.4s ease, box-shadow 0.3s ease;
+  will-change: border-color, box-shadow;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #2980b9;
+  box-shadow:
+    0 0 10px rgba(41, 128, 185, 0.7),
+    inset 0 1px 5px rgba(41, 128, 185, 0.4);
+}
+
+/* --- Responsive Mobile --- */
+@media (max-width: 600px) {
+  body {
+    margin: 8px;
+    font-size: 13px;
+    /* ลดฟอนต์ลงอีกเล็กน้อย */
+  }
+
+  .container {
+    padding: 12px 16px;
+    border-radius: 10px;
+    max-width: 100%;
+  }
+
+  h1,
+  h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+  }
+
+  label {
+    font-size: 13px;
+    margin-top: 12px;
+  }
+
+  input[type="date"],
+  .input {
+    width: 100%;
+    max-width: 100%;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 10px;
+  }
+
+  table.summary-table {
+    font-size: 12px;
+    border-spacing: 0 6px;
+  }
+
+  table.summary-table th,
+  table.summary-table td {
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: normal;
+  }
+
+  table.summary-table td:first-child {
+    font-weight: 600;
+  }
+
+  .done,
+  .notdone,
+  .partial {
+    font-size: 12px;
+    padding-left: 22px;
+  }
+
+  .done::before,
+  .notdone::before,
+  .partial::before {
+    font-size: 16px;
+    left: 5px;
+  }
+
+  .btn {
+    padding: 8px 14px;
+    font-size: 13px;
+    border-radius: 25px;
+    margin-bottom: 12px;
+  }
+
+
+}

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ระบบจัดการงานส่วนกลาง</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <style>
+    /* CSS สำหรับไอคอน ✅ และ ❌ */
+    .done {
+      background: url('data:image/svg+xml;utf8,<svg fill="green" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 16.17l-3.88-3.88-1.42 1.41L9 19 20.3 7.71l-1.42-1.41z"/></svg>') no-repeat center center;
+      background-size: 20px 20px;
+      width: 24px;
+      height: 24px;
+      margin: auto;
+    }
+    .notdone {
+      background: url('data:image/svg+xml;utf8,<svg fill="red" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18.3 5.71l-1.41-1.41L12 9.59 7.11 4.7 5.7 6.11 10.59 11l-4.88 4.88 1.41 1.41L12 12.41l4.88 4.88 1.41-1.41L13.41 11z"/></svg>') no-repeat center center;
+      background-size: 20px 20px;
+      width: 24px;
+      height: 24px;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container py-5">
+    <h1 class="mb-4 text-center">ระบบจัดการงานส่วนกลาง</h1>
+
+    <div class="card shadow-sm mb-4 p-4">
+      <form id="taskForm" class="row g-3 align-items-center">
+        <div class="col-md-4">
+          <label for="workDate" class="form-label">เลือกวันที่</label>
+          <input type="date" id="workDate" class="form-control" />
+        </div>
+        <div class="col-md-4">
+          <label for="employeeSelect" class="form-label">ชื่อ</label>
+          <select id="employeeSelect" class="form-select">
+            <option value="">-- ชื่อ --</option>
+            <option value="ดา">ดา</option>
+            <option value="บีม">บีม</option>
+            <option value="เมย์">เมย์</option>
+          </select>
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+          <button type="button" id="saveBtn" class="btn btn-primary flex-grow-1">บันทึกงาน</button>
+          <button type="button" id="goSummaryBtn" class="btn btn-outline-secondary flex-grow-1">ดูสรุป</button>
+        </div>
+
+        <div class="col-12 mt-3">
+          <p class="text-muted mb-2">ติ๊กงานที่ทำเสร็จแล้ว</p>
+          <div class="row row-cols-2 row-cols-md-3 g-3" id="taskList">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="ตึกเฮงๆ" id="task1" />
+              <label class="form-check-label" for="task1">ตึกเฮงๆ</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="ข้างเฮงๆ" id="task2" />
+              <label class="form-check-label" for="task2">ข้างเฮงๆ</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="ตึกซัก" id="task3" />
+              <label class="form-check-label" for="task3">ตึกซัก</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="บ้าน 21" id="task4" />
+              <label class="form-check-label" for="task4">บ้าน 21</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="บ้าน 49" id="task5" />
+              <label class="form-check-label" for="task5">บ้าน 49</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="บ้าน 259" id="task6" />
+              <label class="form-check-label" for="task6">บ้าน 259</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="เก็บขอบบัว+เช็ดประตู" id="task7" />
+              <label class="form-check-label" for="task7">เก็บขอบบัว+เช็ดประตู</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="ร้านเฮงๆ+พื้นที่ข้างหน้า" id="task8" />
+              <label class="form-check-label" for="task8">ร้านเฮงๆ+พื้นที่ข้างหน้า</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="ห้องเก็บของ(ข้างเฮงๆ)+เครื่องซักผ้าข้างหน้า" id="task9" />
+              <label class="form-check-label" for="task9">ห้องเก็บของ(ข้างเฮงๆ)+เครื่องซักผ้าข้างหน้า</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="รดน้ำต้นไม้" id="task10" />
+              <label class="form-check-label" for="task10">รดน้ำต้นไม้</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="เคาน์เตอร์หน้าร้านซัก" id="task11" />
+              <label class="form-check-label" for="task11">เคาน์เตอร์หน้าร้านซัก</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="ห้องซัก" id="task12" />
+              <label class="form-check-label" for="task12">ห้องซัก</label>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <p class="text-muted mt-3 mb-0">ข้อมูลถูกเก็บใน Firebase Firestore (แยกตามวัน)</p>
+    </div>
+
+    <h2 class="mb-3">งานของแต่ละคน</h2>
+    <div id="individualContainer" class="d-flex flex-wrap gap-3 mb-5"></div>
+
+    <h2 id="summaryTitle" class="mb-3">ตารางสรุปงานของวันที่เลือก</h2>
+    <div id="summaryContainer" class="table-responsive mb-5"></div>
+
+    <h2 id="yesterdaySummaryTitle" class="mb-3">ตารางสรุปงานของเมื่อวาน</h2>
+    <div id="yesterdaySummaryContainer" class="table-responsive"></div>
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle (Popper + JS) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Firebase config และเริ่มต้น Firestore
+    const firebaseConfig = {
+      apiKey: "AIzaSyDfUd3RdyccN4_u0R6bNbYtejHFYUNPxkM",
+      authDomain: "shop2-eba1e.firebaseapp.com",
+      projectId: "shop2-eba1e",
+      storageBucket: "shop2-eba1e.appspot.com",
+      messagingSenderId: "1016144050614",
+      appId: "1:1016144050614:web:0f898db4bb56084121a917",
+      measurementId: "G-RHD6SC5NF0"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const tasksAll = [
+      "ตึกเฮงๆ",
+      "ข้างเฮงๆ",
+      "ตึกซัก",
+      "บ้าน 21",
+      "บ้าน 49",
+      "บ้าน 259",
+      "เก็บขอบบัว+เช็ดประตู",
+      "ร้านเฮงๆ+พื้นที่ข้างหน้า",
+      "ห้องเก็บของ(ข้างเฮงๆ)+เครื่องซักผ้าข้างหน้า",
+      "รดน้ำต้นไม้",
+      "เคาน์เตอร์หน้าร้านซัก",
+      "ห้องซัก"
+    ];
+
+    // โหลดข้อมูลจาก Firestore ทั้งหมด
+    async function loadData() {
+      const snapshot = await db.collection('workData').get();
+      const data = {};
+      snapshot.forEach(doc => {
+        data[doc.id] = doc.data();
+      });
+      return data;
+    }
+
+    // บันทึกข้อมูลทั้งหมดลง Firestore
+    async function saveData(obj) {
+      const promises = [];
+      for (const [date, employees] of Object.entries(obj)) {
+        promises.push(db.collection('workData').doc(date).set(employees));
+      }
+      await Promise.all(promises);
+    }
+
+    const dateInput = document.getElementById('workDate');
+    const employeeSelect = document.getElementById('employeeSelect');
+    const checkboxes = document.querySelectorAll('#taskList input[type="checkbox"]');
+    const saveBtn = document.getElementById('saveBtn');
+    const goSummaryBtn = document.getElementById('goSummaryBtn');
+    const individualContainer = document.getElementById('individualContainer');
+    const summaryContainer = document.getElementById('summaryContainer');
+    const yesterdaySummaryContainer = document.getElementById('yesterdaySummaryContainer');
+
+    dateInput.value = new Date().toISOString().slice(0,10);
+
+    async function deleteEmployeeData(emp) {
+      const day = dateInput.value;
+      if (!day) return;
+
+      const docRef = db.collection('workData').doc(day);
+      const docSnap = await docRef.get();
+
+      if (docSnap.exists) {
+        const data = docSnap.data();
+        if (data[emp]) {
+          delete data[emp];
+          await docRef.set(data);
+          await renderIndividualTables();
+          await renderSummaryTable();
+          await renderYesterdaySummaryTable();
+        }
+      }
+    }
+
+    // ตั้ง checkbox ตามข้อมูลงานที่ได้
+    function setCheckboxes(doneTasks) {
+      checkboxes.forEach(cb => {
+        cb.checked = doneTasks.includes(cb.value);
+      });
+    }
+
+    async function renderIndividualTables() {
+      const data = await loadData();
+      const day = dateInput.value;
+      const todayData = data[day] || {};
+
+      const employees = ['ดา','บีม','เมย์'];
+      individualContainer.innerHTML = '';
+
+      employees.forEach(emp => {
+        const tasks = todayData[emp] || [];
+
+        const card = document.createElement('div');
+        card.className = 'card card-small p-3 flex-grow-1 shadow-sm';
+
+        let html = `
+          <h5>${emp}</h5>
+          <button class="btn btn-danger btn-sm small-btn mb-2" onclick="deleteEmployeeData('${emp}')">ลบข้อมูลของ ${emp}</button>
+          <table class="table table-bordered mb-0">
+            <thead class="table-light"><tr><th>งานที่ทำ</th></tr></thead>
+            <tbody>
+        `;
+
+        if (tasks.length === 0) {
+          html += `<tr><td class="text-muted">ยังไม่มีข้อมูล</td></tr>`;
+        } else {
+          tasks.forEach(t => html += `<tr><td>${t}</td></tr>`);
+        }
+
+        html += `</tbody></table>`;
+        card.innerHTML = html;
+        individualContainer.appendChild(card);
+      });
+
+      // ตั้ง checkbox ตามพนักงานที่เลือก (ถ้ามี)
+      const selectedEmployee = employeeSelect.value;
+      if (selectedEmployee && todayData[selectedEmployee]) {
+        setCheckboxes(todayData[selectedEmployee]);
+      } else {
+        checkboxes.forEach(cb => cb.checked = false);
+      }
+    }
+
+    async function renderSummaryTable() {
+      const data = await loadData();
+      const day = dateInput.value;
+      const todayData = data[day] || {};
+      const employees = ['ดา','บีม','เมย์'];
+
+      // ฟอร์แมตวันที่แบบไทย
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      const formattedDate = new Date(day).toLocaleDateString('th-TH', options);
+
+      // เปลี่ยนข้อความหัวข้อ
+      document.getElementById('summaryTitle').textContent = `ตารางสรุปงานของวันที่ ${formattedDate}`;
+
+      let html = `<table class="table table-striped table-bordered text-center align-middle shadow-sm summary-table">
+        <thead class="table-dark">
+          <tr>
+            <th>งาน</th>
+            ${employees.map(e => `<th>${e}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+      `;
+
+      tasksAll.forEach(task => {
+        html += `<tr><td class="text-start">${task}</td>`;
+        employees.forEach(emp => {
+          const doneTasks = todayData[emp] || [];
+          if (doneTasks.includes(task)) {
+            html += `<td class="done"></td>`;
+          } else {
+            html += `<td class="notdone"></td>`;
+          }
+        });
+        html += `</tr>`;
+      });
+
+      html += `</tbody></table>`;
+
+      summaryContainer.innerHTML = html;
+    }
+
+    async function renderYesterdaySummaryTable() {
+      const data = await loadData();
+      const selectedDate = new Date(dateInput.value);
+      const yesterdayDate = new Date(selectedDate);
+      yesterdayDate.setDate(selectedDate.getDate() - 1);
+      const yesterdayKey = yesterdayDate.toISOString().slice(0,10);
+
+      const yesterdayData = data[yesterdayKey] || {};
+      const employees = ['ดา','บีม','เมย์'];
+
+      // ฟอร์แมตวันที่เมื่อวานแบบไทย
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      const formattedYesterday = yesterdayDate.toLocaleDateString('th-TH', options);
+
+      // เปลี่ยนข้อความหัวข้อ
+      document.getElementById('yesterdaySummaryTitle').textContent = `ตารางสรุปงานของเมื่อวาน (${formattedYesterday})`;
+
+      let html = `<table class="table table-striped table-bordered text-center align-middle shadow-sm summary-table">
+        <thead class="table-dark">
+          <tr>
+            <th>งาน</th>
+            ${employees.map(e => `<th>${e}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+      `;
+
+      tasksAll.forEach(task => {
+        html += `<tr><td class="text-start">${task}</td>`;
+        employees.forEach(emp => {
+          const doneTasks = yesterdayData[emp] || [];
+          if (doneTasks.includes(task)) {
+            html += `<td class="done"></td>`;
+          } else {
+            html += `<td class="notdone"></td>`;
+          }
+        });
+        html += `</tr>`;
+      });
+
+      html += `</tbody></table>`;
+
+      yesterdaySummaryContainer.innerHTML = html;
+    }
+
+    async function saveTasks() {
+      const employee = employeeSelect.value;
+      const day = dateInput.value;
+
+      if (!day) return alert("กรุณาเลือกวันที่");
+      if (!employee) return alert("กรุณาเลือกพนักงาน");
+
+      const done = [];
+      checkboxes.forEach(cb => { if (cb.checked) done.push(cb.value); });
+
+      const d = await loadData();
+      if (!d[day]) d[day] = {};
+      d[day][employee] = done;
+
+      await saveData(d);
+
+      // **ไม่ล้าง checkbox หรือ reset employeeSelect เพื่อให้สถานะอยู่เหมือนเดิม**
+
+      await renderIndividualTables();
+      await renderSummaryTable();
+      await renderYesterdaySummaryTable();
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await renderIndividualTables();
+      await renderSummaryTable();
+      await renderYesterdaySummaryTable();
+    });
+
+    dateInput.addEventListener('change', async () => {
+      await renderIndividualTables();
+      await renderSummaryTable();
+      await renderYesterdaySummaryTable();
+    });
+
+    employeeSelect.addEventListener('change', async () => {
+      await renderIndividualTables();
+    });
+
+    saveBtn.addEventListener('click', async () => {
+      await saveTasks();
+    });
+
+    goSummaryBtn.addEventListener('click', () => {
+      window.location.href = "summary.html";
+    });
+  </script>
+</body>
+</html>
