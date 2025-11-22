@@ -159,9 +159,15 @@ table.summary-table th {
   cursor: default;
 }
 
-table.summary-table td:first-child {
-  text-align: left;
-  font-weight: 700;
+/* ลดความกว้างของคอลัมน์แรก (ชื่อ) */
+table.summary-table td:first-child,
+table.summary-table th:first-child {
+  width: 160px;      /* กำหนดความกว้างตายตัว */
+  max-width: 160px;  /* กำหนดขนาดสูงสุด */
+  white-space: normal; /* ให้ตัดบรรทัด */
+  word-wrap: break-word; /* กันคำยาวล้น */
+  padding-left: 12px; /* เพิ่มช่องว่างซ้ายเล็กน้อย */
+  text-align: left;    /* จัดชิดซ้าย */
 }
 
 /* เอฟเฟกต์ hover แถว */
