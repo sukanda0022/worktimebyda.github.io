@@ -162,12 +162,18 @@ table.summary-table th {
 /* ลดความกว้างของคอลัมน์แรก (ชื่อ) */
 table.summary-table td:first-child,
 table.summary-table th:first-child {
-  width: 160px;      /* กำหนดความกว้างตายตัว */
-  max-width: 160px;  /* กำหนดขนาดสูงสุด */
-  white-space: normal; /* ให้ตัดบรรทัด */
-  word-wrap: break-word; /* กันคำยาวล้น */
-  padding-left: 12px; /* เพิ่มช่องว่างซ้ายเล็กน้อย */
-  text-align: left;    /* จัดชิดซ้าย */
+  width: 160px;
+  /* กำหนดความกว้างตายตัว */
+  max-width: 160px;
+  /* กำหนดขนาดสูงสุด */
+  white-space: normal;
+  /* ให้ตัดบรรทัด */
+  word-wrap: break-word;
+  /* กันคำยาวล้น */
+  padding-left: 12px;
+  /* เพิ่มช่องว่างซ้ายเล็กน้อย */
+  text-align: left;
+  /* จัดชิดซ้าย */
 }
 
 /* เอฟเฟกต์ hover แถว */
@@ -377,4 +383,24 @@ table.summary-table tbody tr:hover td {
     margin-bottom: 12px;
   }
 
+
+  table.summary-table {
+    max-width: 100%;
+    /* ให้เต็มความกว้างจอมือถือ */
+    font-size: 12px;
+    /* เล็กลงนิดหน่อยสำหรับมือถือ */
+    border-spacing: 0 6px;
+  }
+
+  table.summary-table td:first-child,
+  table.summary-table th:first-child {
+    width: 120px;
+    /* ลดความกว้างคอลัมน์ชื่อ */
+    max-width: 120px;
+    white-space: normal;
+    word-wrap: break-word;
+    padding-left: 8px;
+    text-align: left;
+  }
 }
+
