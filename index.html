@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -7,31 +8,41 @@
 
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-
-  <!-- Custom CSS -->
   <link rel="stylesheet" href="style.css" />
 
-  <!-- Firebase compat SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <!-- Custom CSS -->
   <style>
-    /* CSS สำหรับไอคอน ✅ และ ❌ */
-    .done {
-      background: url('data:image/svg+xml;utf8,<svg fill="green" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 16.17l-3.88-3.88-1.42 1.41L9 19 20.3 7.71l-1.42-1.41z"/></svg>') no-repeat center center;
-      background-size: 20px 20px;
-      width: 24px;
-      height: 24px;
-      margin: auto;
+    /* Toast Notification */
+    #toast {
+      visibility: hidden;
+      min-width: 250px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 8px;
+      padding: 16px;
+      position: fixed;
+      z-index: 9999;
+      top: 20px;
+      /* เปลี่ยนจาก bottom เป็น top */
+      right: 20px;
+      /* กำหนดให้ชิดขวา */
+      font-size: 16px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+      pointer-events: none;
     }
-    .notdone {
-      background: url('data:image/svg+xml;utf8,<svg fill="red" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18.3 5.71l-1.41-1.41L12 9.59 7.11 4.7 5.7 6.11 10.59 11l-4.88 4.88 1.41 1.41L12 12.41l4.88 4.88 1.41-1.41L13.41 11z"/></svg>') no-repeat center center;
-      background-size: 20px 20px;
-      width: 24px;
-      height: 24px;
-      margin: auto;
+
+    #toast.show {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
     }
   </style>
+
 </head>
+
 <body>
 
   <div class="container py-5">
@@ -54,7 +65,7 @@
         </div>
         <div class="col-md-4 d-flex gap-2">
           <button type="button" id="saveBtn" class="btn btn-primary flex-grow-1">บันทึกงาน</button>
-          <button type="button" id="goSummaryBtn" class="btn btn-outline-secondary flex-grow-1">ดูสรุป</button>
+          <button type="button" id="goSummaryBtn" class="btn btn-outline-secondary flex-grow-1">สรุปงานวันนี้</button>
         </div>
 
         <div class="col-12 mt-3">
@@ -93,7 +104,8 @@
               <label class="form-check-label" for="task8">ร้านเฮงๆ+พื้นที่ข้างหน้า</label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="checkbox" value="ห้องเก็บของ(ข้างเฮงๆ)+เครื่องซักผ้าข้างหน้า" id="task9" />
+              <input class="form-check-input" type="checkbox" value="ห้องเก็บของ(ข้างเฮงๆ)+เครื่องซักผ้าข้างหน้า"
+                id="task9" />
               <label class="form-check-label" for="task9">ห้องเก็บของ(ข้างเฮงๆ)+เครื่องซักผ้าข้างหน้า</label>
             </div>
             <div class="form-check">
@@ -112,16 +124,16 @@
         </div>
       </form>
 
-      <p class="text-muted mt-3 mb-0">ข้อมูลถูกเก็บใน Firebase Firestore (แยกตามวัน)</p>
+      <p class="text-muted mt-3 mb-0">ข้อมูลถูกเก็บใน Local Storage (แยกตามวัน)</p>
     </div>
 
-    <h2 class="mb-3">งานของแต่ละคน</h2>
+    <h2 id="individualTitle" class="mb-3">งานของแต่ละคน</h2>
     <div id="individualContainer" class="d-flex flex-wrap gap-3 mb-5"></div>
 
     <h2 id="summaryTitle" class="mb-3">ตารางสรุปงานของวันที่เลือก</h2>
     <div id="summaryContainer" class="table-responsive mb-5"></div>
 
-    <h2 id="yesterdaySummaryTitle" class="mb-3">ตารางสรุปงานของเมื่อวาน</h2>
+    <h2 id="yesterdayTitle" class="mb-3">ตารางสรุปงานของเมื่อวาน</h2>
     <div id="yesterdaySummaryContainer" class="table-responsive"></div>
   </div>
 
@@ -129,20 +141,6 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // Firebase config และเริ่มต้น Firestore
-    const firebaseConfig = {
-      apiKey: "AIzaSyDfUd3RdyccN4_u0R6bNbYtejHFYUNPxkM",
-      authDomain: "shop2-eba1e.firebaseapp.com",
-      projectId: "shop2-eba1e",
-      storageBucket: "shop2-eba1e.appspot.com",
-      messagingSenderId: "1016144050614",
-      appId: "1:1016144050614:web:0f898db4bb56084121a917",
-      measurementId: "G-RHD6SC5NF0"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
     const tasksAll = [
       "ตึกเฮงๆ",
       "ข้างเฮงๆ",
@@ -158,23 +156,13 @@
       "ห้องซัก"
     ];
 
-    // โหลดข้อมูลจาก Firestore ทั้งหมด
-    async function loadData() {
-      const snapshot = await db.collection('workData').get();
-      const data = {};
-      snapshot.forEach(doc => {
-        data[doc.id] = doc.data();
-      });
-      return data;
+    function loadData() {
+      const raw = localStorage.getItem('workData');
+      return raw ? JSON.parse(raw) : {};
     }
 
-    // บันทึกข้อมูลทั้งหมดลง Firestore
-    async function saveData(obj) {
-      const promises = [];
-      for (const [date, employees] of Object.entries(obj)) {
-        promises.push(db.collection('workData').doc(date).set(employees));
-      }
-      await Promise.all(promises);
+    function saveData(obj) {
+      localStorage.setItem('workData', JSON.stringify(obj));
     }
 
     const dateInput = document.getElementById('workDate');
@@ -186,40 +174,48 @@
     const summaryContainer = document.getElementById('summaryContainer');
     const yesterdaySummaryContainer = document.getElementById('yesterdaySummaryContainer');
 
-    dateInput.value = new Date().toISOString().slice(0,10);
+    function getLocalDateISO() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
 
-    async function deleteEmployeeData(emp) {
+    // ฟังก์ชันแปลงวันที่เป็นรูปแบบ "23 พ.ย. 2568"
+    function formatThaiDate(date) {
+      const day = date.getDate();
+      const monthNames = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
+        "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
+      ];
+      const month = monthNames[date.getMonth()];
+      const year = date.getFullYear() + 543;
+      return `${day} ${month} ${year}`;
+    }
+
+    // ตั้งค่าวันที่เริ่มต้นเป็นวันนี้
+    dateInput.value = getLocalDateISO();
+
+    function deleteEmployeeData(emp) {
+      const data = loadData();
       const day = dateInput.value;
-      if (!day) return;
 
-      const docRef = db.collection('workData').doc(day);
-      const docSnap = await docRef.get();
-
-      if (docSnap.exists) {
-        const data = docSnap.data();
-        if (data[emp]) {
-          delete data[emp];
-          await docRef.set(data);
-          await renderIndividualTables();
-          await renderSummaryTable();
-          await renderYesterdaySummaryTable();
-        }
+      if (data[day] && data[day][emp]) {
+        delete data[day][emp];
+        saveData(data);
+        renderIndividualTables();
+        renderSummaryTable();
+        renderYesterdaySummaryTable();
+        updateSummaryTitles();
       }
     }
 
-    // ตั้ง checkbox ตามข้อมูลงานที่ได้
-    function setCheckboxes(doneTasks) {
-      checkboxes.forEach(cb => {
-        cb.checked = doneTasks.includes(cb.value);
-      });
-    }
-
-    async function renderIndividualTables() {
-      const data = await loadData();
+    function renderIndividualTables() {
+      const data = loadData();
       const day = dateInput.value;
       const todayData = data[day] || {};
 
-      const employees = ['ดา','บีม','เมย์'];
+      const employees = ['ดา', 'บีม', 'เมย์'];
       individualContainer.innerHTML = '';
 
       employees.forEach(emp => {
@@ -246,28 +242,13 @@
         card.innerHTML = html;
         individualContainer.appendChild(card);
       });
-
-      // ตั้ง checkbox ตามพนักงานที่เลือก (ถ้ามี)
-      const selectedEmployee = employeeSelect.value;
-      if (selectedEmployee && todayData[selectedEmployee]) {
-        setCheckboxes(todayData[selectedEmployee]);
-      } else {
-        checkboxes.forEach(cb => cb.checked = false);
-      }
     }
 
-    async function renderSummaryTable() {
-      const data = await loadData();
+    function renderSummaryTable() {
+      const data = loadData();
       const day = dateInput.value;
       const todayData = data[day] || {};
-      const employees = ['ดา','บีม','เมย์'];
-
-      // ฟอร์แมตวันที่แบบไทย
-      const options = { year: 'numeric', month: 'short', day: 'numeric' };
-      const formattedDate = new Date(day).toLocaleDateString('th-TH', options);
-
-      // เปลี่ยนข้อความหัวข้อ
-      document.getElementById('summaryTitle').textContent = `ตารางสรุปงานของวันที่ ${formattedDate}`;
+      const employees = ['ดา', 'บีม', 'เมย์'];
 
       let html = `<table class="table table-striped table-bordered text-center align-middle shadow-sm summary-table">
         <thead class="table-dark">
@@ -297,22 +278,15 @@
       summaryContainer.innerHTML = html;
     }
 
-    async function renderYesterdaySummaryTable() {
-      const data = await loadData();
+    function renderYesterdaySummaryTable() {
+      const data = loadData();
       const selectedDate = new Date(dateInput.value);
       const yesterdayDate = new Date(selectedDate);
       yesterdayDate.setDate(selectedDate.getDate() - 1);
-      const yesterdayKey = yesterdayDate.toISOString().slice(0,10);
+      const yesterdayKey = yesterdayDate.toISOString().slice(0, 10);
 
       const yesterdayData = data[yesterdayKey] || {};
-      const employees = ['ดา','บีม','เมย์'];
-
-      // ฟอร์แมตวันที่เมื่อวานแบบไทย
-      const options = { year: 'numeric', month: 'short', day: 'numeric' };
-      const formattedYesterday = yesterdayDate.toLocaleDateString('th-TH', options);
-
-      // เปลี่ยนข้อความหัวข้อ
-      document.getElementById('yesterdaySummaryTitle').textContent = `ตารางสรุปงานของเมื่อวาน (${formattedYesterday})`;
+      const employees = ['ดา', 'บีม', 'เมย์'];
 
       let html = `<table class="table table-striped table-bordered text-center align-middle shadow-sm summary-table">
         <thead class="table-dark">
@@ -342,52 +316,83 @@
       yesterdaySummaryContainer.innerHTML = html;
     }
 
-    async function saveTasks() {
+    function updateSummaryTitles() {
+      const selectedDate = new Date(dateInput.value);
+      const yesterdayDate = new Date(selectedDate);
+      yesterdayDate.setDate(selectedDate.getDate() - 1);
+
+      document.getElementById('summaryTitle').textContent = `ตารางสรุปงานวันนี้ ${formatThaiDate(selectedDate)}`;
+      document.getElementById('yesterdayTitle').textContent = `ตารางสรุปงานเมื่อวาน (${formatThaiDate(yesterdayDate)})`;
+    }
+
+    function showToast(message, bgColor = '#198754') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.style.backgroundColor = bgColor;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    function saveTasks() {
       const employee = employeeSelect.value;
       const day = dateInput.value;
 
-      if (!day) return alert("กรุณาเลือกวันที่");
-      if (!employee) return alert("กรุณาเลือกพนักงาน");
+      if (!day) {
+        showToast("เลือกวันที่", '#dc3545');
+        return;
+      }
+      if (!employee) {
+        showToast("เลือกชื่อ", '#dc3545');
+        return;
+      }
 
       const done = [];
-      checkboxes.forEach(cb => { if (cb.checked) done.push(cb.value); });
+      checkboxes.forEach(cb => {
+        if (cb.checked) done.push(cb.value);
+      });
 
-      const d = await loadData();
+      const d = loadData();
       if (!d[day]) d[day] = {};
       d[day][employee] = done;
 
-      await saveData(d);
+      saveData(d);
 
-      // **ไม่ล้าง checkbox หรือ reset employeeSelect เพื่อให้สถานะอยู่เหมือนเดิม**
+      checkboxes.forEach(cb => cb.checked = false);
+      employeeSelect.value = "";
+      renderIndividualTables();
+      renderSummaryTable();
+      renderYesterdaySummaryTable();
+      updateSummaryTitles();
 
-      await renderIndividualTables();
-      await renderSummaryTable();
-      await renderYesterdaySummaryTable();
+      showToast("บันทึกงานเรียบร้อยแล้ว", '#198754');
     }
 
-    window.addEventListener('DOMContentLoaded', async () => {
-      await renderIndividualTables();
-      await renderSummaryTable();
-      await renderYesterdaySummaryTable();
+    window.addEventListener('DOMContentLoaded', () => {
+      renderIndividualTables();
+      renderSummaryTable();
+      renderYesterdaySummaryTable();
+      updateSummaryTitles();
     });
 
-    dateInput.addEventListener('change', async () => {
-      await renderIndividualTables();
-      await renderSummaryTable();
-      await renderYesterdaySummaryTable();
+    dateInput.addEventListener('change', () => {
+      renderIndividualTables();
+      renderSummaryTable();
+      renderYesterdaySummaryTable();
+      updateSummaryTitles();
     });
 
-    employeeSelect.addEventListener('change', async () => {
-      await renderIndividualTables();
-    });
-
-    saveBtn.addEventListener('click', async () => {
-      await saveTasks();
-    });
+    saveBtn.addEventListener('click', saveTasks);
 
     goSummaryBtn.addEventListener('click', () => {
       window.location.href = "summary.html";
     });
   </script>
+
+  <!-- Toast Notification -->
+  <div id="toast"></div>
+
 </body>
+
 </html>
