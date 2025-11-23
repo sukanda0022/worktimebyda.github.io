@@ -5,7 +5,29 @@
   <meta charset="UTF-8" />
   <title>สรุปงานวันนี้</title>
   <link rel="stylesheet" href="style.css" />
-
+  <style>
+    /* ตัวอย่างสไตล์เล็กน้อย */
+    .done {
+      color: green;
+      font-weight: bold;
+    }
+    .notdone {
+      color: #ccc;
+    }
+    table.summary-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table.summary-table th, table.summary-table td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    table.summary-table th {
+      background-color: #444;
+      color: white;
+    }
+  </style>
 </head>
 
 <body>
@@ -63,6 +85,8 @@
     const day = String(today.getDate()).padStart(2, '0');
     dateInput.value = `${year}-${month}-${day}`;
 
+    const employees = ["ดา", "บีม", "เมย์"];
+
     // ฟังก์ชันแปลงวันที่เป็นแบบ "23 พ.ย. 2568"
     function formatThaiDate(dateString) {
       const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
@@ -74,23 +98,10 @@
       return `${day} ${month} ${year}`;
     }
 
-    async function loadData() {
-      const snapshot = await db.collection('workData').get();
-      const data = {};
-      snapshot.forEach(doc => {
-        data[doc.id] = doc.data();
-      });
-      return data;
-    }
+    // ฟังก์ชันแสดงตารางโดยรับข้อมูลมาจาก Firebase
+    function renderSummary(day, data) {
+      const dayData = data || {};
 
-    async function renderSummary() {
-      const day = dateInput.value;
-      const data = await loadData();
-      const dayData = data[day] || {};
-
-      const employees = ["ดา", "บีม", "เมย์"];
-
-      // ใช้ฟังก์ชัน formatThaiDate ในการแสดงวันที่
       let html = `<h2>สรุปงานวันที่ ${formatThaiDate(day)}</h2>`;
       html += `<table class="summary-table"><thead><tr><th>งาน</th>`;
 
@@ -100,7 +111,7 @@
       html += `</tr></thead><tbody>`;
 
       allTasks.forEach(task => {
-        html += `<tr><td>${task}</td>`;
+        html += `<tr><td class="text-start">${task}</td>`;
 
         employees.forEach(emp => {
           const empTasks = dayData[emp] || [];
@@ -116,8 +127,31 @@
       summaryBox.innerHTML = html;
     }
 
-    document.addEventListener("DOMContentLoaded", renderSummary);
-    dateInput.addEventListener("change", renderSummary);
+    // ฟังก์ชันตั้ง listener แบบเรียลไทม์จาก Firestore
+    function listenToData(day) {
+      return db.collection('workData').doc(day)
+        .onSnapshot(doc => {
+          if (doc.exists) {
+            renderSummary(day, doc.data());
+          } else {
+            renderSummary(day, {}); // กรณีไม่มีข้อมูล
+          }
+        });
+    }
+
+    // ตัวแปรเก็บ unsubscribe function เพื่อยกเลิก listener เมื่อต้องการ
+    let unsubscribe = null;
+
+    // เริ่มต้นตอนโหลดหน้าเว็บ
+    document.addEventListener("DOMContentLoaded", () => {
+      unsubscribe = listenToData(dateInput.value);
+    });
+
+    // ฟัง event เปลี่ยนวันที่ แล้วยกเลิก listener เก่า แล้วเปิด listener ใหม่
+    dateInput.addEventListener("change", () => {
+      if (unsubscribe) unsubscribe();
+      unsubscribe = listenToData(dateInput.value);
+    });
 
     function goBack() {
       window.location.href = "index.html";
